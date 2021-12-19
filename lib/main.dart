@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_app_riverpod/stats.dart';
@@ -29,7 +27,7 @@ class Logger extends ProviderObserver {
 }
 
 final todosProvider =
-    StateNotifierProvider<TodosList, List<Todo>>((ref) => TodosList([
+    ChangeNotifierProvider<TodosList>((ref) => TodosList([
           Todo(id: '1', description: 'todo1'),
           Todo(id: '2', description: 'todo2'),
           Todo(id: '3', description: 'todo3', completed: true),
@@ -38,7 +36,7 @@ final todosProvider =
 final filterProvider = StateProvider((ref) => Filter.all);
 
 final filteredTodosProvider = Provider<List<Todo>>((ref) {
-  List<Todo> todos = ref.watch(todosProvider);
+  List<Todo> todos = ref.watch(todosProvider).todos;
   Filter filter = ref.watch(filterProvider);
   switch (filter) {
     case Filter.all:
@@ -53,9 +51,9 @@ final filteredTodosProvider = Provider<List<Todo>>((ref) {
 final tabProvider = StateProvider<int>((ref) => 0);
 
 final statsProvider = StateProvider<Stats>((ref) {
-  int all = ref.watch(todosProvider).length;
+  int all = ref.watch(todosProvider).todos.length;
   int completed =
-      ref.watch(todosProvider).where((todo) => todo.completed).length;
+      ref.watch(todosProvider).todos.where((todo) => todo.completed).length;
   return Stats(all, completed);
 });
 

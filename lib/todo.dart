@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,26 +12,34 @@ class Todo with _$Todo {
       @Default(false) bool completed}) = _Todo;
 }
 
-class TodosList extends StateNotifier<List<Todo>> {
+class TodosList extends ChangeNotifier {
   final _uuid = Uuid();
-  TodosList([List<Todo> initialTodo = const []]) : super(initialTodo);
+  List<Todo> todos;
+  TodosList([this.todos = const []]);
 
   void addTodo(String description) {
-    state = [...state, Todo(id: _uuid.v4(), description: description)];
+    // todos = [...todos, Todo(id: _uuid.v4(), description: description)];
+    todos.add(Todo(id: _uuid.v4(), description: description));
+    notifyListeners();
   }
 
   void removeTodo(Todo todo) {
-    state = state.where((td) => td.id != todo.id).toList();
+    // todos = todos.where((td) => td.id != todo.id).toList();
+    todos.removeWhere((td) => td.id == todo.id);
+    notifyListeners();
   }
 
   void editTodo(Todo todo) {
-    state = state.map((td) {
-      if (td.id != todo.id) {
-        return td.copyWith();
-      } else {
-        return todo.copyWith();
-      }
-    }).toList();
+    int index = todos.indexWhere((td) => td.id == todo.id);
+    todos.replaceRange(index, index + 1, [todo]);
+    notifyListeners();
+    // todos = todos.map((td) {
+    //   if (td.id != todo.id) {
+    //     return td.copyWith();
+    //   } else {
+    //     return todo.copyWith();
+    //   }
+    // }).toList();
   }
 
   void toggleTodo(Todo todo) {
